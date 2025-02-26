@@ -3,9 +3,10 @@ import numpy as np
 import sounddevice as sd
 import soundfile as sf
 import matplotlib.pyplot as plt
+# import streamlit as st
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QSlider, QPushButton, QLabel
 from PyQt6.QtCore import Qt
-from audio_utils import generate_sine_wave, apply_lowpass_filter
+from audio_utils import generate_sine_wave, apply_lowpass_filter, generate_square_wave, generate_noise, convert_to_bit_depth
 
 # GUI Class
 class AudioApp(QMainWindow):
@@ -146,37 +147,44 @@ class AudioApp(QMainWindow):
     def update_release(self, value):
         self.release = value / 10.0
         self.release_label.setText(f"Release: {self.release} s")
-
+        
 
     # Play the generated sound
     def play_sound(self):
-        waveform, sr, total_duration = generate_sine_wave(
+        waveform, sr, total_duration = generate_square_wave(
             self.frequency, 
             self.amplitude, 
-            attack=self.attack, 
-            decay=self.decay, 
-            sustain=self.sustain, 
-            release=self.release
+            # attack=self.attack, 
+            # decay=self.decay, 
+            # sustain=self.sustain, 
+            # release=self.release
         )
-
+    
         # Apply low-pass filter
         filtered_waveform = apply_lowpass_filter(waveform, cutoff=self.cutoff, sample_rate=sr)
+        
+        # Apply bit depth
+        bit_waveform = convert_to_bit_depth(waveform, bit_depth=8)
 
         # Play the generated sound
-        sd.play(filtered_waveform, sr)
+        sd.play(bit_waveform, sr)
 
         # Save the sound file with correct duration
         sf.write("generated_audio.wav", filtered_waveform, sr)
+        print("Waveform Stats:")
+        print("Min:", np.min(waveform), "Max:", np.max(waveform), "Mean:", np.mean(waveform))
+        print("Sample Rate:", sr, "Duration:", total_duration)
+
 
     
     def plot_waveform(self):
-        waveform, sr, total_duration = generate_sine_wave(
+        waveform, sr, total_duration = generate_square_wave(
             self.frequency, 
             self.amplitude, 
-            attack=self.attack, 
-            decay=self.decay, 
-            sustain=self.sustain, 
-            release=self.release
+            # attack=self.attack, 
+            # decay=self.decay, 
+            # sustain=self.sustain, 
+            # release=self.release
         )
 
         # Apply low-pass filter

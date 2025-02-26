@@ -27,9 +27,31 @@ def generate_sine_wave(frequency, amplitude, duration=1.0, sample_rate=44100,
 
     return waveform * env, sample_rate, total_duration
 
+def generate_square_wave(frequency, amplitude, duty_cycle=0.5, duration=1.0, sample_rate=44100):
+    """Generate a square wave with a specified duty cycle."""
+    t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
+    waveform = amplitude * np.sign(np.sin(2 * np.pi * frequency * t) + (2 * duty_cycle - 1))
+    return waveform, sample_rate, duration  # Return all three values
+
+
+def generate_noise(amplitude, duration=1.0, sample_rate=44100):
+    """Generate white noise."""
+    return amplitude * np.random.uniform(-1, 1, int(sample_rate * duration))
+
 # Function to apply a low-pass filter (optional effect)
 def apply_lowpass_filter(data, cutoff=1000, sample_rate=44100, order=5):
     nyquist = 0.5 * sample_rate
     normal_cutoff = cutoff / nyquist
     b, a = butter(order, normal_cutoff, btype='low', analog=False)
     return lfilter(b, a, data)
+
+def convert_to_bit_depth(samples, bit_depth):
+    """Convert samples to the specified bit depth."""
+    if bit_depth == 8:
+        # 8-bit range = [0, 255]
+        return np.uint8((samples + 1) * 127.5)
+    elif bit_depth == 16:
+        # 16-bit range = [-32768, 32767]
+        return np.int16(samples * 32767)
+    else:
+        raise ValueError("Unsupported bit depth. Use 8 or 16.")
