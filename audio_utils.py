@@ -55,3 +55,9 @@ def convert_to_bit_depth(samples, bit_depth):
         return np.int16(samples * 32767)
     else:
         raise ValueError("Unsupported bit depth. Use 8 or 16.")
+    
+def generate_sawtooth_wave(frequency, amplitude, duration=1.0, sample_rate=44100):
+    """Generate a sawtooth wave."""
+    t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
+    waveform = 2 * (t * frequency - np.floor(t * frequency)) - 1  # Sawtooth formula
+    return amplitude * waveform, sample_rate, duration  # Return all three values

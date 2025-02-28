@@ -3,10 +3,10 @@ import numpy as np
 import sounddevice as sd
 import soundfile as sf
 import matplotlib.pyplot as plt
-# import streamlit as st
-from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QSlider, QPushButton, QLabel
+import streamlit as st
+from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QSlider, QPushButton, QLabel, QCheckBox
 from PyQt6.QtCore import Qt
-from audio_utils import generate_sine_wave, apply_lowpass_filter, generate_square_wave, generate_noise, convert_to_bit_depth
+from audio_utils import generate_sine_wave, apply_lowpass_filter, generate_square_wave, generate_sawtooth_wave, generate_noise, convert_to_bit_depth
 
 # GUI Class
 class AudioApp(QMainWindow):
@@ -106,11 +106,28 @@ class AudioApp(QMainWindow):
         self.release_slider.valueChanged.connect(self.update_release)
         self.layout.addWidget(self.release_slider)
 
+        # Checkbox for 8-bit conversion
+        self.bit_depth_checkbox = QCheckBox("Convert to 8-bit")
+        self.layout.addWidget(self.bit_depth_checkbox)
+        
+        # Checkbox for lowpass filter
+        self.lowpass_checkbox = QCheckBox("Apply lowpass filter")
+        self.layout.addWidget(self.lowpass_checkbox)
 
-        # Play Button
-        self.play_button = QPushButton("Play Sound")
-        self.play_button.clicked.connect(self.play_sound)
-        self.layout.addWidget(self.play_button)
+        # Play square Button
+        self.play_square_button = QPushButton("Play Square Sound")
+        self.play_square_button.clicked.connect(self.play_square_sound)
+        self.layout.addWidget(self.play_square_button)
+        
+        # Play sine Button
+        self.play_sine_button = QPushButton("Play Sine Sound")
+        self.play_sine_button.clicked.connect(self.play_sine_sound)
+        self.layout.addWidget(self.play_sine_button)
+        
+        # Play sawtooth Button
+        self.play_sawtooth_button = QPushButton("Play Saw Tooth Sound")
+        self.play_sawtooth_button.clicked.connect(self.play_sawtooth_sound)
+        self.layout.addWidget(self.play_sawtooth_button)
 
         # Plot Button
         self.plot_button = QPushButton("Show Waveform")
@@ -149,28 +166,90 @@ class AudioApp(QMainWindow):
         self.release_label.setText(f"Release: {self.release} s")
         
 
-    # Play the generated sound
-    def play_sound(self):
+    # Play the generated square sound 
+    def play_square_sound(self):
         waveform, sr, total_duration = generate_square_wave(
             self.frequency, 
-            self.amplitude, 
-            # attack=self.attack, 
-            # decay=self.decay, 
-            # sustain=self.sustain, 
-            # release=self.release
+            self.amplitude
         )
+        
+        edited_waveform = waveform
     
         # Apply low-pass filter
-        filtered_waveform = apply_lowpass_filter(waveform, cutoff=self.cutoff, sample_rate=sr)
+        if self.lowpass_checkbox.isChecked():
+            waveform = apply_lowpass_filter(waveform, cutoff=self.cutoff, sample_rate=sr)
         
-        # Apply bit depth
-        bit_waveform = convert_to_bit_depth(waveform, bit_depth=8)
+        # If the checkbox is checked, convert the waveform to 8-bit
+        if self.bit_depth_checkbox.isChecked():
+            edited_waveform = convert_to_bit_depth(waveform, bit_depth=8)
+            # Properly convert from uint8 (0 to 255) to int16 (-32768 to 32767)
+            edited_waveform = (edited_waveform.astype(np.int16) - 128) * 256
 
         # Play the generated sound
-        sd.play(bit_waveform, sr)
+        sd.play(edited_waveform, sr)
 
         # Save the sound file with correct duration
-        sf.write("generated_audio.wav", filtered_waveform, sr)
+        sf.write("generated_audio.wav", edited_waveform, sr)
+        print("Waveform Stats:")
+        print("Min:", np.min(waveform), "Max:", np.max(waveform), "Mean:", np.mean(waveform))
+        print("Sample Rate:", sr, "Duration:", total_duration)
+        
+    # Play the generated saw tooth sound 
+    def play_sawtooth_sound(self):
+        waveform, sr, total_duration = generate_sawtooth_wave(
+            self.frequency, 
+            self.amplitude
+        )
+        
+        edited_waveform = waveform
+    
+        # Apply low-pass filter
+        if self.lowpass_checkbox.isChecked():
+            waveform = apply_lowpass_filter(waveform, cutoff=self.cutoff, sample_rate=sr)
+        
+        # If the checkbox is checked, convert the waveform to 8-bit
+        if self.bit_depth_checkbox.isChecked():
+            edited_waveform = convert_to_bit_depth(waveform, bit_depth=8)
+            # Properly convert from uint8 (0 to 255) to int16 (-32768 to 32767)
+            edited_waveform = (edited_waveform.astype(np.int16) - 128) * 256
+
+        # Play the generated sound
+        sd.play(edited_waveform, sr)
+
+        # Save the sound file with correct duration
+        sf.write("generated_audio.wav", edited_waveform, sr)
+        print("Waveform Stats:")
+        print("Min:", np.min(waveform), "Max:", np.max(waveform), "Mean:", np.mean(waveform))
+        print("Sample Rate:", sr, "Duration:", total_duration)
+        
+    # Play the generated sine sound
+    def play_sine_sound(self):
+        waveform, sr, total_duration = generate_sine_wave(
+            self.frequency, 
+            self.amplitude, 
+            attack=self.attack, 
+            decay=self.decay, 
+            sustain=self.sustain, 
+            release=self.release
+        )
+        
+        edited_waveform = waveform
+    
+        # Apply low-pass filter
+        if self.lowpass_checkbox.isChecked():
+            edited_waveform = apply_lowpass_filter(waveform, cutoff=self.cutoff, sample_rate=sr)
+        
+        # If the checkbox is checked, convert the waveform to 8-bit
+        if self.bit_depth_checkbox.isChecked():
+            edited_waveform = convert_to_bit_depth(waveform, bit_depth=8)
+            # Properly convert from uint8 (0 to 255) to int16 (-32768 to 32767)
+            edited_waveform = (edited_waveform.astype(np.int16) - 128) * 256
+
+        # Play the generated sound
+        sd.play(edited_waveform, sr)
+
+        # Save the sound file with correct duration
+        sf.write("generated_audio.wav", edited_waveform, sr)
         print("Waveform Stats:")
         print("Min:", np.min(waveform), "Max:", np.max(waveform), "Mean:", np.mean(waveform))
         print("Sample Rate:", sr, "Duration:", total_duration)
@@ -178,24 +257,33 @@ class AudioApp(QMainWindow):
 
     
     def plot_waveform(self):
-        waveform, sr, total_duration = generate_square_wave(
+        waveform, sr, total_duration = generate_sine_wave(
             self.frequency, 
             self.amplitude, 
-            # attack=self.attack, 
-            # decay=self.decay, 
-            # sustain=self.sustain, 
-            # release=self.release
+            attack=self.attack, 
+            decay=self.decay, 
+            sustain=self.sustain, 
+            release=self.release
         )
+        
+        edited_waveform = waveform
 
-        # Apply low-pass filter
-        filtered_waveform = apply_lowpass_filter(waveform, cutoff=self.cutoff, sample_rate=sr)
+       # Apply low-pass filter
+        if self.lowpass_checkbox.isChecked():
+            edited_waveform = apply_lowpass_filter(waveform, cutoff=self.cutoff, sample_rate=sr)
+        
+        # If the checkbox is checked, convert the waveform to 8-bit
+        if self.bit_depth_checkbox.isChecked():
+            edited_waveform = convert_to_bit_depth(waveform, bit_depth=8)
+            # Properly convert from uint8 (0 to 255) to int16 (-32768 to 32767)
+            edited_waveform = (edited_waveform.astype(np.int16) - 128) * 256
 
         # Create time axis in seconds
-        time_axis = np.linspace(0, total_duration, len(filtered_waveform))
+        time_axis = np.linspace(0, total_duration, len(edited_waveform))
 
         plt.figure(figsize=(8, 4))
-        plt.plot(time_axis, filtered_waveform, label="Filtered Waveform")
-        plt.title(f"Sine Wave ({self.frequency} Hz) with ADSR Envelope")
+        plt.plot(time_axis, edited_waveform, label="Filtered Waveform")
+        plt.title(f"Waveform ({self.frequency} Hz) with ADSR Envelope")
         plt.xlabel("Time (seconds)")
         plt.ylabel("Amplitude")
         plt.grid(True)
