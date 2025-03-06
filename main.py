@@ -15,7 +15,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QSlider, QPushButton, QLabel, QCheckBox, QSizePolicy
 from PyQt6.QtCore import Qt, QTimer
-from audio_utils import generate_sine_wave, apply_lowpass_filter, generate_square_wave, generate_sawtooth_wave, generate_noise, generate_vibrato, convert_to_bit_depth
+from audio_utils import generate_sine_wave, apply_lowpass_filter, generate_square_wave, generate_sawtooth_wave, generate_noise, apply_distortion, generate_vibrato, convert_to_bit_depth
 
 # Matplotlib Canvas for embedding in PyQt
 class WaveformCanvas(FigureCanvas):
@@ -174,6 +174,11 @@ class AudioApp(QMainWindow):
         self.vibrato_checkbox = QCheckBox("Apply vibrato filter")
         self.vibrato_checkbox.stateChanged.connect(self.update_waveform)
         self.controls_layout.addWidget(self.vibrato_checkbox)
+        
+        # Checkbox for distortion
+        self.distortion_checkbox = QCheckBox("Apply distortion filter")
+        self.distortion_checkbox.stateChanged.connect(self.update_waveform)
+        self.controls_layout.addWidget(self.distortion_checkbox)
 
         # Play square Button
         self.play_square_button = QPushButton("Play Square Sound")
@@ -257,6 +262,10 @@ class AudioApp(QMainWindow):
         # Apply low-pass filter if checked
         if self.lowpass_checkbox.isChecked():
             edited_waveform = apply_lowpass_filter(edited_waveform, cutoff=self.cutoff, sample_rate=sr)
+        
+        # Apply distortion filter if checked
+        if self.distortion_checkbox.isChecked():
+            edited_waveform = apply_distortion(edited_waveform)
             
         # Apply noise filter if checked
         if self.noise_checkbox.isChecked():
@@ -291,6 +300,10 @@ class AudioApp(QMainWindow):
         # Apply low-pass filter
         if self.lowpass_checkbox.isChecked():
             edited_waveform = apply_lowpass_filter(edited_waveform, cutoff=self.cutoff, sample_rate=sr)
+            
+        # Apply distortion filter if checked
+        if self.distortion_checkbox.isChecked():
+            edited_waveform = apply_distortion(edited_waveform)
             
         # Apply noise filter if checked
         if self.noise_checkbox.isChecked():
@@ -329,6 +342,10 @@ class AudioApp(QMainWindow):
         # Apply low-pass filter
         if self.lowpass_checkbox.isChecked():
             edited_waveform = apply_lowpass_filter(edited_waveform, cutoff=self.cutoff, sample_rate=sr)
+            
+        # Apply distortion filter if checked
+        if self.distortion_checkbox.isChecked():
+            edited_waveform = apply_distortion(edited_waveform)
             
         # Apply noise filter if checked
         if self.noise_checkbox.isChecked():
@@ -371,6 +388,10 @@ class AudioApp(QMainWindow):
         # Apply low-pass filter
         if self.lowpass_checkbox.isChecked():
             edited_waveform = apply_lowpass_filter(edited_waveform, cutoff=self.cutoff, sample_rate=sr)
+            
+        # Apply distortion filter if checked
+        if self.distortion_checkbox.isChecked():
+            edited_waveform = apply_distortion(edited_waveform)
             
         # Apply noise filter if checked
         if self.noise_checkbox.isChecked():

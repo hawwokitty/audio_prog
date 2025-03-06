@@ -76,3 +76,15 @@ def generate_vibrato(frequency, amplitude, vibrato_rate=5.0, vibrato_depth=0.02,
     waveform = amplitude * np.sin(2 * np.pi * (frequency + vibrato) * t)
 
     return waveform, sample_rate, duration
+
+def apply_distortion(waveform, gain=5.0, mix=0.5):
+    """Apply a soft-clipping distortion effect to an audio waveform."""
+    # Apply gain
+    distorted = waveform * gain
+    
+    # Soft clipping (tanh-based)
+    distorted = np.tanh(distorted)
+
+    # Blend distorted signal with original
+    output = (1 - mix) * waveform + mix * distorted
+    return output
