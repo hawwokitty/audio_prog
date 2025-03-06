@@ -61,3 +61,18 @@ def generate_sawtooth_wave(frequency, amplitude, duration=1.0, sample_rate=44100
     t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
     waveform = 2 * (t * frequency - np.floor(t * frequency)) - 1  # Sawtooth formula
     return amplitude * waveform, sample_rate, duration  # Return all three values
+
+import numpy as np
+
+def generate_vibrato(frequency, amplitude, vibrato_rate=5.0, vibrato_depth=0.02, duration=1.0, sample_rate=44100):
+    """Generate a sine wave with vibrato effect."""
+
+    t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
+
+    # Create a low-frequency oscillation (LFO) for vibrato effect
+    vibrato = vibrato_depth * frequency * np.sin(2 * np.pi * vibrato_rate * t)
+
+    # Apply vibrato modulation to the main sine wave frequency
+    waveform = amplitude * np.sin(2 * np.pi * (frequency + vibrato) * t)
+
+    return waveform, sample_rate, duration
