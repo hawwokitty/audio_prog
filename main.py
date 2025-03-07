@@ -15,6 +15,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QSlider, QPushButton, QLabel, QCheckBox, QSizePolicy
 from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QIcon, QFont, QFontDatabase
 from audio_utils import generate_sine_wave, apply_lowpass_filter, generate_square_wave, generate_sawtooth_wave, generate_noise, apply_distortion, generate_vibrato, convert_to_bit_depth
 
 # Matplotlib Canvas for embedding in PyQt
@@ -35,21 +36,86 @@ class WaveformCanvas(FigureCanvas):
         """Update the plot with new waveform data"""
         self.axes.clear()
         time_axis = np.linspace(0, duration, len(waveform))
-        self.axes.plot(time_axis, waveform)
-        self.axes.set_title(title)
-        self.axes.set_xlabel("Time (seconds)")
-        self.axes.set_ylabel("Amplitude")
+        self.axes.plot(time_axis, waveform, color="#ff69b4", linewidth=2)  # Pink lines
+        self.axes.set_facecolor("#fff0f5")  # Light pink background
+        
+        # Set pink title and labels
+        self.axes.set_title(title, color="#ff69b4", fontsize=14)  
+        self.axes.set_xlabel("Time (seconds)", color="#ff69b4", fontsize=12)
+        self.axes.set_ylabel("Amplitude", color="#ff69b4", fontsize=12)
+
+        # Set tick colors to pink
+        self.axes.tick_params(axis="x", colors="#ff69b4")
+        self.axes.tick_params(axis="y", colors="#ff69b4")
+
         self.axes.grid(True)
         self.fig.tight_layout()
         self.draw()
+
 
 # GUI Class
 class AudioApp(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Audio Synthesizer")
+        self.setWindowTitle("🌸 Cute Synth 🌸")
+        self.setWindowIcon(QIcon("cute_icon.png"))
         self.setGeometry(100, 100, 800, 600)  # Increased size to accommodate waveform
+        
+        # font_id = QFontDatabase.addApplicationFont("SourGummy-VariableFont_wdth,wght.ttf")
+        # if font_id == -1:
+        #     print("Failed to load font!")
+
+        # font_family = QFontDatabase.applicationFontFamilies(font_id)[0]  # Get the font name
+        # # Apply the font
+        # cute_font = QFont(font_family, 16)
+        
+        self.setStyleSheet("""
+    QWidget {
+        background-color: #ffe4e1;  /* Light pink */
+        font-family: "Trebuchet MS";
+    }
+    QLabel {
+        color: #ff69b4;  /* Hot pink */
+        font-size: 16px;
+    }
+    QPushButton {
+        background-color: #ffb6c1;  /* Soft pink */
+        border-radius: 10px;
+        padding: 5px;
+    }
+    QPushButton:hover {
+        background-color: #ff69b4;
+        color: white;
+    }
+    QSlider::groove:horizontal {
+        background: #ffb6c1;
+        height: 10px;
+    }
+    QSlider::handle:horizontal {
+        background: #ff69b4;
+        width: 20px;
+    }
+    QCheckBox {
+        color: #ff69b4;
+    }
+    QCheckBox::indicator {
+        width: 16px;  /* Size of the box */
+        height: 16px;
+        border-radius: 4px;  /* Slightly rounded corners */
+        border: 2px solid #ff69b4;  /* Hot pink border */
+        background-color: #ffb6c1;  /* Soft pink */
+    }
+    QCheckBox::indicator:hover {
+        background-color: #ff69b4;  /* Hot pink when hovered */
+    }
+    
+    QCheckBox::indicator:checked {
+        background-color: #ff1493;  /* Deep pink when checked */
+        border: 2px solid #ff69b4;  /* Keep border hot pink */
+    }
+""")
+
         
         # ADSR Default Values
         self.attack = 0.1
@@ -85,6 +151,7 @@ class AudioApp(QMainWindow):
         # ===== CONTROLS =====
         # Frequency Slider
         self.freq_label = QLabel(f"Frequency: {self.frequency} Hz")
+        # self.freq_label.setFont(cute_font)
         self.controls_layout.addWidget(self.freq_label)
         self.freq_slider = QSlider(Qt.Orientation.Horizontal)
         self.freq_slider.setMinimum(100)
@@ -412,9 +479,9 @@ class AudioApp(QMainWindow):
 
         # Save the sound file with correct duration
         sf.write("generated_audio.wav", edited_waveform, sr)
-        print("Waveform Stats:")
-        print("Min:", np.min(waveform), "Max:", np.max(waveform), "Mean:", np.mean(waveform))
-        print("Sample Rate:", sr, "Duration:", total_duration)
+        # print("Waveform Stats:")
+        # print("Min:", np.min(waveform), "Max:", np.max(waveform), "Mean:", np.mean(waveform))
+        # print("Sample Rate:", sr, "Duration:", total_duration)
 
 
 # Run Application
