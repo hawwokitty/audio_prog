@@ -11,6 +11,7 @@ matplotlib.use("QtAgg")  # Ensure it's using the correct Qt backend
 
 
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QSlider, QPushButton, QLabel, QCheckBox, QSizePolicy
@@ -32,24 +33,44 @@ class WaveformCanvas(FigureCanvas):
                                   QSizePolicy.Policy.Expanding)
         FigureCanvas.updateGeometry(self)
         
+        # Load the "Sour Gummy" font
+        font_path = "SourGummy-VariableFont_wdth,wght.ttf" 
+        self.sour_gummy_font = fm.FontProperties(fname=font_path)
+        
     def plot_waveform(self, waveform, sr, duration, title="Waveform"):
         """Update the plot with new waveform data"""
         self.axes.clear()
         time_axis = np.linspace(0, duration, len(waveform))
-        self.axes.plot(time_axis, waveform, color="#ff69b4", linewidth=2)  # Pink lines
+        self.axes.plot(time_axis, waveform, color="#E53888", linewidth=2)  
+        
+         # Clone the font properties and set size dynamically
+        font_title = self.sour_gummy_font.copy()
+        font_title.set_size(16)
+
+        font_labels = self.sour_gummy_font.copy()
+        font_labels.set_size(12)
+        
+         # Change background colors
+        self.fig.patch.set_facecolor("#F7A8C4")  # Outside figure background 
         self.axes.set_facecolor("#fff0f5")  # Light pink background
         
         # Set pink title and labels
-        self.axes.set_title(title, color="#ff69b4", fontsize=14)  
-        self.axes.set_xlabel("Time (seconds)", color="#ff69b4", fontsize=12)
-        self.axes.set_ylabel("Amplitude", color="#ff69b4", fontsize=12)
+        self.axes.set_title(title, color="#AC1754", fontsize=14, fontproperties=font_title)  
+        self.axes.set_xlabel("Time (seconds)", color="#AC1754", fontsize=12, fontproperties=font_labels)
+        self.axes.set_ylabel("Amplitude", color="#AC1754", fontsize=12, fontproperties=font_labels)
 
         # Set tick colors to pink
-        self.axes.tick_params(axis="x", colors="#ff69b4")
-        self.axes.tick_params(axis="y", colors="#ff69b4")
+        self.axes.tick_params(axis="x", colors="#AC1754")
+        self.axes.tick_params(axis="y", colors="#AC1754")
+        
+        # Set font for tick labels
+        for label in self.axes.get_xticklabels():
+            label.set_fontproperties(self.sour_gummy_font)
+        for label in self.axes.get_yticklabels():
+            label.set_fontproperties(self.sour_gummy_font)
 
         self.axes.grid(True)
-        self.fig.tight_layout()
+        self.fig.tight_layout()        
         self.draw()
 
 
@@ -62,57 +83,56 @@ class AudioApp(QMainWindow):
         self.setWindowIcon(QIcon("cute_icon.png"))
         self.setGeometry(100, 100, 800, 600)  # Increased size to accommodate waveform
         
-        # font_id = QFontDatabase.addApplicationFont("SourGummy-VariableFont_wdth,wght.ttf")
-        # if font_id == -1:
-        #     print("Failed to load font!")
-
-        # font_family = QFontDatabase.applicationFontFamilies(font_id)[0]  # Get the font name
-        # # Apply the font
-        # cute_font = QFont(font_family, 16)
+        font_id = QFontDatabase.addApplicationFont("SourGummy-VariableFont_wdth,wght.ttf")
+        if font_id != -1:
+            font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
+            cute_font = QFont(font_family, 12)
+            self.setFont(cute_font)
         
         self.setStyleSheet("""
     QWidget {
-        background-color: #ffe4e1;  /* Light pink */
-        font-family: "Trebuchet MS";
+        background-color: #F7A8C4;  /* Light pink */
+        font-family: "Sour Gummy";
     }
     QLabel {
-        color: #ff69b4;  /* Hot pink */
+        color: #AC1754;  /* Hot pink */
         font-size: 16px;
     }
     QPushButton {
-        background-color: #ffb6c1;  /* Soft pink */
+        background-color: #F37199;  /* Soft pink */
         border-radius: 10px;
         padding: 5px;
+        color: #AC1754;
     }
     QPushButton:hover {
-        background-color: #ff69b4;
+        background-color: #AC1754;
         color: white;
     }
     QSlider::groove:horizontal {
-        background: #ffb6c1;
+        background: #F37199;
         height: 10px;
     }
     QSlider::handle:horizontal {
-        background: #ff69b4;
+        background: #AC1754;
         width: 20px;
     }
     QCheckBox {
-        color: #ff69b4;
+        color: #AC1754;
     }
     QCheckBox::indicator {
         width: 16px;  /* Size of the box */
         height: 16px;
         border-radius: 4px;  /* Slightly rounded corners */
-        border: 2px solid #ff69b4;  /* Hot pink border */
-        background-color: #ffb6c1;  /* Soft pink */
+        border: 2px solid #AC1754;  /* Hot pink border */
+        background-color: #F37199;  /* Soft pink */
     }
     QCheckBox::indicator:hover {
-        background-color: #ff69b4;  /* Hot pink when hovered */
+        background-color: #AC1754;  /* Hot pink when hovered */
     }
     
     QCheckBox::indicator:checked {
-        background-color: #ff1493;  /* Deep pink when checked */
-        border: 2px solid #ff69b4;  /* Keep border hot pink */
+        background-color: #E53888;  /* Deep pink when checked */
+        border: 2px solid #AC1754;  /* Keep border hot pink */
     }
 """)
 
