@@ -411,9 +411,9 @@ class AudioApp(QMainWindow):
 
         # Save the sound file with correct duration
         sf.write("generated_audio.wav", edited_waveform, sr)
-        print("Waveform Stats:")
-        print("Min:", np.min(waveform), "Max:", np.max(waveform), "Mean:", np.mean(waveform))
-        print("Sample Rate:", sr, "Duration:", total_duration)
+        # print("Waveform Stats:")
+        # print("Min:", np.min(waveform), "Max:", np.max(waveform), "Mean:", np.mean(waveform))
+        # print("Sample Rate:", sr, "Duration:", total_duration)
         
     def play_sawtooth_sound(self):
         self.current_waveform_type = "sawtooth"
@@ -453,9 +453,9 @@ class AudioApp(QMainWindow):
 
         # Save the sound file with correct duration
         sf.write("generated_audio.wav", edited_waveform, sr)
-        print("Waveform Stats:")
-        print("Min:", np.min(waveform), "Max:", np.max(waveform), "Mean:", np.mean(waveform))
-        print("Sample Rate:", sr, "Duration:", total_duration)
+        # print("Waveform Stats:")
+        # print("Min:", np.min(waveform), "Max:", np.max(waveform), "Mean:", np.mean(waveform))
+        # print("Sample Rate:", sr, "Duration:", total_duration)
         
     def play_sine_sound(self):
         self.current_waveform_type = "sine"
